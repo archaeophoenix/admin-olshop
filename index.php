@@ -19,7 +19,6 @@ if ($method == 'POST') {
         $_POST['account'] = implode(' - ', $_POST['account']);
         $sql->update('customer', 'id = :id', $_POST);
       }
-      // echo'<pre>';print_r($_POST);die();
       $sql->redirects($base_url . 'customer');
     break;
 
@@ -77,7 +76,6 @@ if ($method == 'GET') {
         $arr1['subdistrict_name'] = $match['subdistrict_name'];
       }
 
-      // print_r($data);
       echo json_encode($data);
     break;
 

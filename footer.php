@@ -68,7 +68,7 @@
   <script type="text/javascript">
   let base_url = $('#base_url').val();
   let cur_page = window.location.href.replace(base_url, '');
-  // console.log(window.location.href);
+
   $(function () {
     $('.datetimepicker').datetimepicker({
       format: 'DD/MM/YYYY'
@@ -116,7 +116,7 @@
   }
 
   function customerDetail(id){
-    // $('.customer-' + id).each(function(){});
+
     let name = $('#customer-' + id + '-name').val();
     let account = $('#customer-' + id + '-account').val();
     let phone = $('#customer-' + id + '-phone').val();
