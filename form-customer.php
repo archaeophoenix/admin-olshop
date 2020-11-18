@@ -95,7 +95,8 @@ $subdistrict_id = (empty($data['subdistrict_id'])) ? '' : $data['subdistrict_id'
               </div>
               <div class="card-footer">
                 <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fa fa-dot-circle-o"></i> Submit</button>
-                <button type="reset" class="btn btn-outline-danger btn-sm"><i class="fa fa-ban"></i> Reset</button>
+                <button type="reset" class="btn btn-outline-danger btn-sm"><i class="fa fa-undo"></i> Reset</button>
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="goBack();"><i class="fa fa-long-arrow-left"></i> Kembali</button>
               </div>
             </form>
           </div>

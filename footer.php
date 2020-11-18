@@ -110,6 +110,10 @@
     window.location = base_url + url;
   }
 
+  function goBack() {
+    window.history.back();
+  }
+
   function rupiah(number){
     number = (isNaN(number)) ? 0 : number ;
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);

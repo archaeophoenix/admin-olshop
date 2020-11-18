@@ -31,7 +31,7 @@
                 <div class="dropDownSelect2"></div>
               </div> -->
               <div class="input-group">
-                <input type="text" id="data-search" name="text-input" placeholder="Text" class="form-input form-control">
+                <input type="search" id="data-search" name="text-input" placeholder="Text" class="form-input form-control">
                 <div class="input-group-addon" style="border-radius:0px 50px 50px 0px">
                   <i class="fa fa-search"></i>
                 </div>
