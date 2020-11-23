@@ -7,7 +7,7 @@
           <h3 class="title-5 m-b-35">data pelanggan</h3>
           <div class="table-data__tool">
             <div class="table-data__tool-left">
-              <button style="border-radius: 50px;" onclick="redirect('customer-form')" class="btn btn-outline-success btn-md"><i class="zmdi zmdi-plus"></i> Tambah Data</button>
+              <button style="border-radius: 50px;" onclick="redirect('customer-form')" class="btn btn-outline-success btn-sm" title="Tambah Data Pelanggan"><i class="fa fa-user-plus"></i> Tambah Data Pelanggan</button>
               <!--<div class="rs-select2--light rs-select2--md">
                 <select class="js-select2" name="property">
                   <option selected="selected">All Properties</option>

@@ -1,4 +1,6 @@
 <?php
+// namespace libs;
+
 class Sql extends PDO{
 
   function __construct(){
@@ -8,8 +10,20 @@ class Sql extends PDO{
     parent::__construct("mysql:host=$host;dbname=$dbname", "$user", "$password");
   }
 
-  function status(){
+  function menu(){
+    return json_decode(MENU, true);
+  }
+
+  function expedition(){
+    return json_decode(EXP, true);
+  }
+
+  function stacus(){
     return json_decode(STACUS, true);
+  }
+
+  function stapri(){
+    return json_decode(STAPRI, true);
   }
 
   function bank(){
@@ -29,20 +43,25 @@ class Sql extends PDO{
     return $province;
   }
 
-  function selected($col, $val){
+  function selected($col, $id, $selected = true){
     $data = $this->location();
-    $data = $this->filterBy($data, $col, $id);
-    return array_pop($data);
+    $data = $this->filterBy($data, $col, $id, $selected);
+
+    $data = ($selected) ? array_pop($data) : $data;
+
+    return $data;
   }
 
-  function filterBy($data, $col, $id){
-    $result = array_filter($data, function ($var) use ($col, $id) {
-      return ($var[$col] == $id);
+  function filterBy($data, $col, $id, $selected = true){
+    $result = array_filter($data, function ($var) use ($col, $id, $selected) {
+      return ($selected) ? ($var[$col] == $id) : preg_match('~' . strtolower($id) . '~', strtolower($var[$col]));
     });
 
-    usort($result, function ($a, $b) {
-      return $a[$col] - $b[$col];
-    });
+    if ($selected) {
+      usort($result, function ($a, $b) use ($col){
+        return $a[$col] - $b[$col];
+      });
+    }
 
     return $result;
   }
@@ -72,7 +91,7 @@ class Sql extends PDO{
   function pagination($table, $pages = ['limit' => 10, 'page' => 1], $condition = null, $fields = "*"){
     $page = ($pages['page'] - 1) * $pages['limit'];
     $limit = ' LIMIT ' . $page . ' , ' . $pages['limit'];
-    $total = $this->one($table, $condition, 'COUNT(id) total');
+    $total = $this->one($table, $condition, 'COUNT(' . $table . '.id) total');
 
     $data['page'] = $pages['page'];
     $data['pages'] = ceil($total['total'] / $pages['limit']);

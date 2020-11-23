@@ -36,6 +36,37 @@
     [tr class="spacer"][/tr]
   </div>
 
+  <div id="item-data" style="display: none;">
+    [tr class="tr-shadow"]
+      [td]
+        [div class="table-data-feature"]
+          [button class="item" onclick="redirect('item/{{id}}');" title="Edit Nama Item"]
+            [i class="zmdi zmdi-edit"][/i]
+          [/button]
+          [button class="item" data-toggle="modal" onclick="redirect('item/{{id}}/price');" data-target="#scrollmodal" title="Harga Baru"]
+            [i class="fa fa-money"][/i]
+          [/button]
+        [/div]
+      [/td]
+      [td]{{name}}[/td]
+      [td class="desc"]
+        [span class="block-email"]{{value}}[/span]
+      [/td]
+    [/tr]
+    [tr class="spacer"][/tr]
+  </div>
+
+  <div id="commission-data" style="display: none;">
+    [tr class="tr-shadow"]
+      [td]{{percent}}%[/td]
+      [td class="desc"]
+        [span class="badge badge-{{lbl}}"]{{created_at}}[/span]
+      [/td]
+      [td]{{status}}[/td]
+    [/tr]
+    [tr class="spacer"][/tr]
+  </div>
+
   <input type="hidden" id="base_url" value="<?php echo $base_url; ?>">
 
   <!-- Jquery JS-->
@@ -67,15 +98,66 @@
 
   <script type="text/javascript">
   let base_url = $('#base_url').val();
-  let cur_page = window.location.href.replace(base_url, '');
+  let cur_url = window.location.href.replace(base_url, '').split('/');
+  let cur_page = cur_url[0];
 
   $(function () {
+
+    select2css();
+
+    $('#same-customer').click(function(){
+      if($(this)[0].checked){
+        bindcus();
+      } else {
+        emptycus();
+      }
+      select2css();
+    });
+
+    $(".customer").autocomplete({
+      source:base_url + 'customer-data',
+      minLength:1,
+      select: function (event, ui) {
+
+        emptycus();
+
+        $('.rescus').hide();
+        $("#customer").val(ui.item.label);
+        $("#customer2").val(ui.item.id);
+        $("#customer3").val(JSON.stringify(ui.item));
+
+        if (ui.item.status == 'Reseller') {
+
+          $('.rescus').show();
+
+          if($('#same-customer')[0].checked){
+            bindcus();
+          }
+
+          select2css();
+
+        } else {
+          emptycus();
+          $('.rescus').hide();
+        }
+      }
+    });
+
+    $(".subdistrict").autocomplete({
+      source:base_url + 'subdistrict-data',
+      minLength:3,
+      select: function (event, ui) {
+        $("#subdistrict_name").val(ui.item.label);
+        $("#subdistrict_id").val(ui.item.subdistrict_id);
+      }
+    });
+
     $('.datetimepicker').datetimepicker({
       format: 'DD/MM/YYYY'
     });
 
     $('.number').on('input blur paste', function(){
-     $(this).val($(this).val().replace(/\D/g, ''));
+     $(this).val($(this).val().replace(/[^0-9.]/g, '').replace(/\.(?=.*\.)/g, ''));
     });
 
     $('#data-search').on('input blur paste', function(){
@@ -102,9 +184,48 @@
       case 'customer':
         customer();
       break;
+
+      case 'item':
+        item();
+      break;
+
+      case 'commission':
+        commission();
+      break;
     }
 
   });
+
+  function emptycus(){
+    $('#name').val('');
+    $('#phone').val('');
+    $('#code').select2().val('').trigger('change');
+    $('#account').val('');
+    $('#address').val('');
+    $('#subdistrict_name').val('');
+    $('#subdistrict_id').val('');
+  }
+
+  function bindcus(){
+    let data = JSON.parse($("#customer3").val());
+    $('#name').val(data.name);
+    $('#phone').val(data.phone);
+    $('#code').select2().val(data.code).trigger('change');
+    $('#account').val(data.account);
+    $('#address').val(data.address);
+    $('#subdistrict_name').val(data.subdistrict_name);
+    $('#subdistrict_id').val(data.subdistrict_id);
+  }
+
+  function select2css(){
+    $('.select2-selection').attr('style','border-radius:50px; height:38px;');
+    $('.select2-dropdown').attr('style','border-radius:15px;');
+    $('.select2-search').attr('style','border-radius:15px;');
+  }
+
+  function newTab(url){
+    window.open(base_url + url);
+  }
 
   function redirect(url){
     window.location = base_url + url;
@@ -117,6 +238,19 @@
   function rupiah(number){
     number = (isNaN(number)) ? 0 : number ;
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+  }
+
+  function dateTimeId(string) {
+    bulanIndo = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September' , 'Oktober', 'November', 'Desember'];
+   
+    date = string.split(" ")[0];
+    time = string.split(" ")[1];
+   
+    tanggal = date.split("-")[2];
+    bulan = date.split("-")[1];
+    tahun = date.split("-")[0];
+ 
+    return tanggal + " " + bulanIndo[Math.abs(bulan)] + " " + tahun + " " + time;
   }
 
   function customerDetail(id){
@@ -143,7 +277,7 @@
     let html = '';
     let lmth = '';
     let pages = '&page=' + page;
-    let name = ($('#data-search').val()) ? '&name=' + $('#data-search').val() : '' ;
+    let name = ($('#data-search').val()) ? '&term=' + $('#data-search').val() + '|' : '' ;
     let data = await $.get(base_url + 'customer-data/?' + pages + name);
     let customer = $('#customer-data').html();
     let datac = data.data;
@@ -187,14 +321,88 @@
     }
   }
 
-  async function getData(url){
-    let data = await $.get(base_url + url);
-    return JSON.parse(data);
+  async function item(page = 1){
+    let html = '';
+    let lmth = '';
+    let pages = '&page=' + page;
+    let name = ($('#data-search').val()) ? '&term=' + $('#data-search').val() + '|' : '' ;
+    let data = await $.get(base_url + 'item-data/?' + pages + name);
+    let customer = $('#item-data').html();
+    let datac = data.data;
+
+    for(let q in datac){
+      lmth = customer;
+      lmth = lmth.replace(/\[/g, '<');
+      lmth = lmth.replace(/]/g, '>');
+      lmth = lmth.replace(/{{id}}/g, datac[q].id);
+      lmth = lmth.replace(/{{name}}/g, datac[q].name);
+      lmth = lmth.replace(/{{value}}/g, rupiah(datac[q].value));
+      html += lmth;
+    }
+
+    $('#data-page').val(data.page);
+    $('#data-last').val(data.pages);
+    $('#data-item').html(html);
+
+    if (data.page == 1) {
+      $('#first-page').hide();
+      $('#previous-page').hide();
+    } else {
+      $('#first-page').show();
+      $('#previous-page').show();
+    }
+
+    if (data.page == data.pages) {
+      $('#next-page').hide();
+      $('#last-page').hide();
+    } else {
+      $('#next-page').show();
+      $('#last-page').show();
+    }
   }
 
-  async function postData(url, datas){
-    let data = await $.get(base_url + url, datas);
-    return JSON.parse(data);
+  async function commission(page = 1){
+    let html = '';
+    let lmth = '';
+    let pages = '&page=' + page;
+    let name = ($('#data-search').val()) ? '&term=' + $('#data-search').val() + '|' : '' ;
+    let data = await $.get(base_url + 'commission-data/?' + pages + name);
+    let customer = $('#commission-data').html();
+    let datac = data.data;
+
+    for(let q in datac){
+      lmth = customer;
+      let sts = (datac[q].status == 'Aktif') ? 'check' : 'times';
+      let lbl = (datac[q].status == 'Aktif') ? 'primary' : 'danger';
+
+      lmth = lmth.replace(/\[/g, '<');
+      lmth = lmth.replace(/]/g, '>');
+      lmth = lmth.replace(/{{lbl}}/g, lbl);
+      lmth = lmth.replace(/{{percent}}/g, datac[q].percent);
+      lmth = lmth.replace(/{{created_at}}/g, dateTimeId(datac[q].created_at));
+      lmth = lmth.replace(/{{status}}/g, '<span class="badge badge-' + lbl + '"><i class="fa fa-' + sts + '"></i></span>');
+      html += lmth;
+    }
+
+    $('#data-page').val(data.page);
+    $('#data-last').val(data.pages);
+    $('#data-commission').html(html);
+
+    if (data.page == 1) {
+      $('#first-page').hide();
+      $('#previous-page').hide();
+    } else {
+      $('#first-page').show();
+      $('#previous-page').show();
+    }
+
+    if (data.page == data.pages) {
+      $('#next-page').hide();
+      $('#last-page').hide();
+    } else {
+      $('#next-page').show();
+      $('#last-page').show();
+    }
   }
   </script>
 

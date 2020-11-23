@@ -1,11 +1,3 @@
-<?php
-$id = (empty($data['id'])) ? '' : $data['id'] ;
-$name = (empty($data['name'])) ? '' : $data['name'] ;
-$phone = (empty($data['phone'])) ? '' : $data['phone'] ;
-$status = (empty($data['status'])) ? '' : $data['status'] ;
-$address = (empty($data['address'])) ? '' : $data['address'] ;
-$subdistrict_id = (empty($data['subdistrict_id'])) ? '' : $data['subdistrict_id'] ;
-?>
 <div class="main-content">
   <div class="section__content section__content--p30">
     <div class="container-fluid">
@@ -40,10 +32,8 @@ $subdistrict_id = (empty($data['subdistrict_id'])) ? '' : $data['subdistrict_id'
                   </div>
                   <div class="col-12 col-md-3">
                      <select name="account[0]" id="select" class="js-select2 form-control">
-                      <?php if(empty($id)){ ?>
-                        <option value="0" disabled="disabled" selected="selected">Pilih Kode Bank</option>
-                      <?php }
-                      $account = (empty($id)) ? null : explode(' - ', $data['account']);
+                      <option value="0" disabled="disabled" selected="selected">Pilih Kode Bank</option>
+                      <?php $account = (empty($id)) ? null : explode(' - ', $data['account']);
                       foreach ($bank as $key => $val) { ?>
                         <option <?php echo (!empty($id) && isset($account[0]) && $account[0] == $val['code']) ? 'selected="selected"' : '' ; ?> value="<?php echo $val['code']; ?>"><?php echo $val['code'] . ' - ' . $val['bank']; ?></option>
                       <?php } ?>
@@ -59,15 +49,8 @@ $subdistrict_id = (empty($data['subdistrict_id'])) ? '' : $data['subdistrict_id'
                     <label for="select" class=" form-control-label">Kecamatan</label>
                   </div>
                   <div class="col-12 col-md-9">
-                    <select name="subdistrict_id" id="select" class="js-select2 form-control">
-                      <?php if(empty($id)){ ?>
-                      <option value="0" disabled="disabled" selected="selected">Pilih Kecamatan</option>
-                      <?php }
-                      foreach ($subdistrict as $key => $val) { ?>
-                        <option <?php echo (!empty($id) && $subdistrict_id == $val['subdistrict_id']) ? 'selected="selected"' : '' ; ?> value="<?php echo $val['subdistrict_id']; ?>"><?php echo $val['subdistrict_name'] . ' - ' . $val['type'] . ' ' . $val['city_name']; ?></option>
-                      <?php } ?>
-                    </select>
-                    <div class="dropDownSelect2"></div>
+                    <input type="text" id="subdistrict_name" value="<?php echo $subdistrict; ?>" placeholder="Gambir" class="form-control form-input subdistrict">
+                    <input type="hidden" id="subdistrict_id" name="subdistrict_id" value="<?php echo $subdistrict_id; ?>">
                   </div>
                 </div>
                 <div class="row form-group">
@@ -84,7 +67,7 @@ $subdistrict_id = (empty($data['subdistrict_id'])) ? '' : $data['subdistrict_id'
                   </div>
                   <div class="col col-md-9">
                     <div class="form-check-inline form-check">
-                      <?php foreach ($statusc as $key => $val) {?>
+                      <?php foreach ($stacus as $key => $val) {?>
                       <label for="inline-radio<?php echo $key; ?>" class="form-check-label ">
                         <input <?php echo (!empty($id) && $status == $val['status']) ? 'checked="checked"' : '' ; ?> type="radio" id="inline-radio<?php echo $key; ?>" name="status" value="<?php echo $val['status'];?>" class="form-check-input"> <?php echo $val['status'];?>
                       </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
